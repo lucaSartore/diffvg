@@ -36,8 +36,10 @@ class Build(build_ext):
             info = get_paths()
             include_path = info['include']
             cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
-                          '-DPYTHON_LIBRARY=' + get_config_var('LIBDIR'),
-                          '-DPYTHON_INCLUDE_PATH=' + include_path]
+                          #'-DPYTHON_LIBRARY=' + get_config_var('LIBDIR'),
+                          '-DPYTHON_LIBRARY=' + '/home/lucas/.conda/envs/lv/lib/libpython3.10.so',
+                          '-DPYTHON_INCLUDE_PATH=' + include_path,
+                          '-DPYTHON_INCLUDE_DIR=' + include_path]
 
             cfg = 'Debug' if self.debug else 'Release'
             build_args = ['--config', cfg]

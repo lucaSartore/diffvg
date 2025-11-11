@@ -2,14 +2,32 @@ cmake_minimum_required(VERSION 3.12)
 
 project(diffvg VERSION 0.0.1 DESCRIPTION "Differentiable Vector Graphics")
 
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+message(PYTHON_EXECUTABLE="${PYTHON_EXECUTABLE}")
+message(PYTHON_INCLUDE_DIR="${PYTHON_INCLUDE_DIR}")
+message(PYTHON_LIBRARY="${PYTHON_LIBRARY}")
+message(PYTHON_INCLUDE_PATH="${PYTHON_INCLUDE_PATH}")
+message(CUDA_LIBRARIES="${CUDA_LIBRARIES}")
+
+
+set(Python_EXECUTABLE "${PYTHON_EXECUTABLE}")
+set(Python_INCLUDE_DIR "${PYTHON_INCLUDE_DIR}")
+set(Python_LIBRARY "${PYTHON_LIBRARY}")
+
+
+message(Python_EXECUTABLE="${Python_EXECUTABLE}")
+message(Python_INCLUDE_DIR="${Python_INCLUDE_DIR}")
+message(Python_LIBRARY="${Python_LIBRARY}")
 
 if(WIN32)
     find_package(Python 3.6 COMPONENTS Development REQUIRED)
 else()
     find_package(Python 3.7 COMPONENTS Development REQUIRED)
 endif()
+
 add_subdirectory(pybind11)
 
 option(DIFFVG_CUDA "Build diffvg with GPU code path?" ON)
@@ -18,9 +36,13 @@ if(DIFFVG_CUDA)
     message(STATUS "Build with CUDA support")
     find_package(CUDA 10 REQUIRED)
     set(CMAKE_CUDA_STANDARD 11)
+    set(CMAKE_CUDA_STANDARD_REQUIRED ON)
     if(NOT WIN32)
         # Hack: for some reason the line above doesn't work on some Linux systems.
-        set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -std=c++11")
+
+        # see  https://github.com/BachiLi/diffvg/issues/29
+        set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -std=c++14 -gencode=arch=compute_86,code=sm_86")
+        #set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -std=c++11")
         #set(CUDA_NVCC_FLAGS_DEBUG "-g -G")
     endif()
 else()
@@ -29,6 +51,7 @@ else()
 endif()
 
 # include_directories(${CMAKE_SOURCE_DIR}/pybind11/include)
+
 include_directories(${PYTHON_INCLUDE_PATH})
 find_package(PythonLibs REQUIRED)
 include_directories(${PYTHON_INCLUDE_PATH})
